@@ -10,12 +10,14 @@ import { connectRedis, redisClient } from './config/redis';
 import { initSocket } from './config/socket';
 import { logger } from './utils/logger';
 import mongoose from 'mongoose';
+import { seedDatabase } from './utils/seeder';
 
 const PORT = process.env.PORT || 3000;
 
 const startServer = async () => {
   // Connect to DB and Redis
   await connectDB();
+  await seedDatabase();
   await connectRedis();
 
   const server = http.createServer(app);
