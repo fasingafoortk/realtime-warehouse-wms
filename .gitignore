@@ -1,0 +1,42 @@
+# Virtual environment
+.venv/
+venv/
+ENV/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environment variables / credentials
+.env
+.env.example
+
+# Database
+db.sqlite3
+
+# Media and static assets
+media/
+staticfiles/
+
+# Test and tool caches
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+scratch_script.js
+
+# Node.js / Angular
+node_modules/
+dist/
+.angular/
+.vscode/
+*.log
+backend/dist/
+backend/node_modules/
+backend/logs/
+backend/coverage/
+frontend/dist/
+frontend/node_modules/
+frontend/.angular/
+

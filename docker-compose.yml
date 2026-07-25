@@ -1,0 +1,90 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:6.0
+    container_name: wms-mongodb
+    command: ["mongod", "--replSet", "rs0", "--bind_ip_all"]
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - wms-network
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 10s
+      retries: 5
+
+  mongodb-setup:
+    image: mongo:6.0
+    container_name: wms-mongodb-setup
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    entrypoint: [ "bash", "-c", "mongosh --host mongodb:27017 --eval \"try { rs.status().ok } catch (e) { rs.initiate({_id: 'rs0', members: [{_id: 0, host: 'mongodb:27017'}]}) }\"" ]
+    networks:
+      - wms-network
+
+  redis:
+    image: redis:alpine
+    container_name: wms-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - wms-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: wms-backend
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - NODE_ENV=production
+      - MONGODB_URI=mongodb://mongodb:27017/wms?replicaSet=rs0
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=prod-secret-access-token-key-change-in-production
+      - JWT_REFRESH_SECRET=prod-secret-refresh-token-key-change-in-production
+      - JWT_ACCESS_EXPIRY=15m
+      - JWT_REFRESH_EXPIRY=7d
+      - CORS_ORIGIN=http://localhost:8080
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      mongodb-setup:
+        condition: service_completed_successfully
+    networks:
+      - wms-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: wms-frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+    networks:
+      - wms-network
+
+volumes:
+  mongo-data:
+  redis-data:
+
+networks:
+  wms-network:
+    driver: bridge

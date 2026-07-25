@@ -1,0 +1,19 @@
+{
+  "version": 2,
+  "public": true,
+  "cleanUrls": true,
+  "routes": [
+    {
+      "src": "/assets/(.*)",
+      "dest": "/frontend/dist/frontend/browser/assets/$1"
+    },
+    {
+      "src": "/(.*).(js|css|png|jpg|svg|ico|webmanifest)",
+      "dest": "/frontend/dist/frontend/browser/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/frontend/dist/frontend/browser/index.html"
+    }
+  ]
+}

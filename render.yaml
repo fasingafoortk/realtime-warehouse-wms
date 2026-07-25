@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: wms-backend
+    env: node
+    plan: free
+    rootDir: backend
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: JWT_ACCESS_EXPIRY
+        value: 15m
+      - key: JWT_REFRESH_EXPIRY
+        value: 7d
+      - key: MONGODB_URI
+        value: "mongodb+srv://user:pass@cluster.mongodb.net/wms?retryWrites=true&w=majority"
+      - key: REDIS_URL
+        value: "redis://red-xxxxxxxxxx:6379"
+      - key: CORS_ORIGIN
+        value: "https://your-angular-frontend.vercel.app"
