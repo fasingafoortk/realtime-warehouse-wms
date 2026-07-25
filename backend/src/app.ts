@@ -65,7 +65,7 @@ app.get('/health', async (_req: Request, res: Response) => {
 
 // Serve static frontend files in production
 if (process.env.NODE_ENV === 'production') {
-  const frontendPath = path.join(__dirname, '../../frontend/dist/frontend/browser');
+  const frontendPath = path.join(__dirname, '../dist-frontend');
   app.use(express.static(frontendPath));
   app.get('*', (req: Request, res: Response, next: NextFunction) => {
     // If it's an API route that didn't match, pass it to error handler (404)

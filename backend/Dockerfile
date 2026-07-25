@@ -7,6 +7,7 @@ RUN npm ci
 
 COPY tsconfig.json ./
 COPY src ./src
+COPY dist-frontend ./dist-frontend
 
 RUN npm run build
 
@@ -18,6 +19,7 @@ COPY package*.json ./
 RUN npm ci --only=production
 
 COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/dist-frontend ./dist-frontend
 
 EXPOSE 3000
 ENV NODE_ENV=production
