@@ -3,7 +3,7 @@ import { logger } from '../utils/logger';
 
 export const connectDB = async (): Promise<void> => {
   try {
-    const connStr = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/wms?replicaSet=rs0';
+    const connStr = process.env.MONGODB_URI || process.env.MONGO_URL || 'mongodb://127.0.0.1:27017/wms?replicaSet=rs0';
     logger.info(`Connecting to MongoDB at: ${connStr.replace(/:([^@:]+)@/, ':****@')}`); // Hide passwords in log
     
     await mongoose.connect(connStr);
