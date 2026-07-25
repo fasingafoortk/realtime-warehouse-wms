@@ -5,6 +5,17 @@ const redisUrl = process.env.REDIS_URL || 'redis://127.0.0.1:6379';
 
 export const redisClient = createClient({
   url: redisUrl,
+  socket: {
+    reconnectStrategy: (retries) => {
+      // If REDIS_URL is not provided, disable reconnection retries (fail immediately)
+      if (!process.env.REDIS_URL) {
+        logger.warn('REDIS_URL not configured. Redis client will not reconnect.');
+        return false;
+      }
+      // Reconnect after an incremental delay (max 3 seconds)
+      return Math.min(retries * 100, 3000);
+    }
+  }
 });
 
 redisClient.on('connect', () => {
