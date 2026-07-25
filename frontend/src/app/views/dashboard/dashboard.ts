@@ -245,23 +245,33 @@ import { WarehouseService } from '../../services/warehouse.service';
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      width: 120px;
-      height: 120px;
-      border: 3px solid var(--primary);
+      width: 140px;
+      height: 140px;
+      border: 4px solid rgba(99, 102, 241, 0.15);
+      border-top-color: var(--primary);
       border-radius: 50%;
-      box-shadow: 0 0 15px rgba(99, 102, 241, 0.2);
+      box-shadow: 0 0 20px rgba(99, 102, 241, 0.12);
+      background: rgba(99, 102, 241, 0.01);
+      padding: 10px;
     }
     
     .duration-meter .meter-val {
-      font-size: 1.8rem;
+      font-size: 2.2rem;
       font-weight: 800;
       color: #fff;
+      font-family: 'Outfit', sans-serif;
+      line-height: 1;
     }
     
     .duration-meter .meter-lbl {
-      font-size: 0.65rem;
+      font-size: 0.6rem;
       color: var(--text-muted);
       text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-top: 6px;
+      text-align: center;
+      max-width: 90px;
+      line-height: 1.2;
     }
     
     .fulfillment-details {
