@@ -509,6 +509,33 @@ import { Subscription } from 'rxjs';
     .modal-actions .btn-secondary:hover {
       background: rgba(255, 255, 255, 0.1) !important;
     }
+
+    @media (max-width: 768px) {
+      .inventory-grid {
+        flex-direction: column;
+      }
+      .suggestions-panel {
+        width: 100%;
+      }
+      .tools-panel {
+        flex-direction: column;
+        gap: 15px;
+        align-items: flex-start;
+      }
+      .filters {
+        flex-direction: column;
+        align-items: flex-start;
+        width: 100%;
+        gap: 15px;
+      }
+      .filter-group {
+        width: 100%;
+      }
+      .filter-group select {
+        width: 100%;
+        min-width: unset;
+      }
+    }
   `]
 })
 export class InventoryComponent implements OnInit, OnDestroy {

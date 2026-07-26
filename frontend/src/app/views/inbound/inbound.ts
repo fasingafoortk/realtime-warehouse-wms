@@ -589,6 +589,22 @@ import { AuthService } from '../../services/auth.service';
     .modal-actions .btn-secondary:hover {
       background: rgba(255, 255, 255, 0.1) !important;
     }
+
+    @media (max-width: 768px) {
+      .logistics-layout {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .details-panel {
+        position: static;
+        width: 100%;
+      }
+      .tools-panel {
+        flex-direction: column;
+        gap: 15px;
+        align-items: flex-start;
+      }
+    }
   `]
 })
 export class InboundComponent implements OnInit {

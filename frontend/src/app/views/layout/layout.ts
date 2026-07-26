@@ -73,6 +73,30 @@ import { WebSocketService } from '../../services/websocket.service';
         <main class="content-area">
           <router-outlet></router-outlet>
         </main>
+
+        <!-- Bottom Nav (Mobile Only) -->
+        <nav class="bottom-nav glass-panel">
+          <a routerLink="/dashboard" routerLinkActive="active" class="bottom-nav-item">
+            <span class="icon">📊</span>
+            <span class="label">Dashboard</span>
+          </a>
+          <a routerLink="/inventory" routerLinkActive="active" class="bottom-nav-item">
+            <span class="icon">📦</span>
+            <span class="label">Inventory</span>
+          </a>
+          <a routerLink="/inbound" routerLinkActive="active" class="bottom-nav-item">
+            <span class="icon">📥</span>
+            <span class="label">Inbound</span>
+          </a>
+          <a routerLink="/outbound" routerLinkActive="active" class="bottom-nav-item">
+            <span class="icon">📤</span>
+            <span class="label">Outbound</span>
+          </a>
+          <button (click)="logout()" class="bottom-nav-item btn-mobile-logout">
+            <span class="icon">↩</span>
+            <span class="label">Logout</span>
+          </button>
+        </nav>
       </div>
     </div>
   `,
@@ -299,19 +323,72 @@ import { WebSocketService } from '../../services/websocket.service';
       padding: 40px;
       flex: 1;
     }
+
+    .bottom-nav {
+      display: none;
+    }
     
     @media (max-width: 768px) {
       .sidebar {
-        display: none; /* In production scale, this would collapse/toggle */
+        display: none;
       }
       .main-layout {
         margin-left: 0;
+        padding-bottom: 75px;
       }
       .top-header {
         padding: 0 20px;
       }
       .content-area {
         padding: 20px;
+      }
+
+      .bottom-nav {
+        display: flex;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 65px;
+        background: rgba(17, 24, 39, 0.95) !important;
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-top: 1px solid var(--border-color);
+        border-radius: 0;
+        z-index: 100;
+        justify-content: space-around;
+        align-items: center;
+        padding: 5px 10px;
+        box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.4);
+      }
+      
+      .bottom-nav-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-muted);
+        text-decoration: none;
+        font-size: 0.65rem;
+        font-weight: 600;
+        gap: 4px;
+        flex: 1;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        transition: color var(--transition-fast);
+      }
+      
+      .bottom-nav-item .icon {
+        font-size: 1.25rem;
+      }
+      
+      .bottom-nav-item.active {
+        color: var(--primary);
+      }
+      
+      .btn-mobile-logout {
+        color: #fca5a5;
       }
     }
   `]
