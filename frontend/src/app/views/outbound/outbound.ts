@@ -602,6 +602,7 @@ export class OutboundComponent implements OnInit {
   
   // Cache of bins mapping
   private binCache = new Map<string, string>();
+  private binWarehouseMap = new Map<string, string>();
 
   public ngOnInit(): void {
     this.loadOrders();
@@ -617,10 +618,18 @@ export class OutboundComponent implements OnInit {
   private loadInitialData(): void {
     this.warehouseService.listWarehouses().subscribe((data) => {
       this.warehouses.set(data);
+      if (data.length > 0) {
+        if (this.actionForm && !this.actionForm.get('warehouseId')?.value) {
+          this.actionForm.patchValue({ warehouseId: data[0]._id });
+        }
+      }
       // Prefetch bin details
       data.forEach((w) => {
         this.warehouseService.listBins(w._id).subscribe((bList) => {
-          bList.forEach((b) => this.binCache.set(b._id, b.code));
+          bList.forEach((b) => {
+            this.binCache.set(b._id, b.code);
+            this.binWarehouseMap.set(b._id, w._id);
+          });
         });
       });
     });
@@ -640,25 +649,32 @@ export class OutboundComponent implements OnInit {
   public selectOrder(order: any): void {
     this.selectedOrder.set(order);
     
-    // Default to the first warehouse or preset if known
-    this.actionForm = this.fb.group({
-      warehouseId: [order.warehouseId || '', Validators.required],
-    });
+    let defaultWarehouseId = order.warehouseId || '';
 
-    if (order.status === 'PICKED' || order.status === 'RESERVED') {
-      // Find the warehouse id from allocations if possible
-      const binId = order.items[0]?.allocations[0]?.binId;
-      if (binId) {
-        // Find which warehouse this bin belongs to by searching binCache (or since we know allocations are in active warehouse, set it)
-        // For convenience in UI, we can just preset the first warehouse or let them select.
-        // In backend, we know allocations are in specific warehouse. We will populate a default.
-        this.warehouseService.listWarehouses().subscribe((whs) => {
-          if (whs.length > 0) {
-            this.actionForm.patchValue({ warehouseId: whs[0]._id });
+    // Find the warehouse id from allocations if possible
+    if (order.items && order.items.length > 0) {
+      for (const item of order.items) {
+        if (item.allocations && item.allocations.length > 0) {
+          const binId = item.allocations[0].binId;
+          const whId = this.binWarehouseMap.get(binId);
+          if (whId) {
+            defaultWarehouseId = whId;
+            break;
           }
-        });
+        }
       }
     }
+
+    if (!defaultWarehouseId) {
+      const whs = this.warehouses();
+      if (whs.length > 0) {
+        defaultWarehouseId = whs[0]._id;
+      }
+    }
+    
+    this.actionForm = this.fb.group({
+      warehouseId: [defaultWarehouseId, Validators.required],
+    });
   }
 
   public getStatusClass(status: string): string {

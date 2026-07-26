@@ -632,6 +632,15 @@ export class InboundComponent implements OnInit {
   private loadInitialData(): void {
     this.warehouseService.listWarehouses().subscribe((data) => {
       this.warehouses.set(data);
+      if (data.length > 0) {
+        if (this.receiveForm && !this.receiveForm.get('warehouseId')?.value) {
+          this.receiveForm.patchValue({ warehouseId: data[0]._id });
+        }
+        if (this.putawayForm && !this.putawayForm.get('warehouseId')?.value) {
+          this.putawayForm.patchValue({ warehouseId: data[0]._id });
+          this.onPutawayWhChange();
+        }
+      }
       // Prefetch bin details
       data.forEach((w) => {
         this.warehouseService.listBins(w._id).subscribe((bList) => {
@@ -655,9 +664,11 @@ export class InboundComponent implements OnInit {
   public selectInbound(ib: any): void {
     this.selectedInbound.set(ib);
     
+    const firstWhId = this.warehouses().length > 0 ? this.warehouses()[0]._id : '';
+
     // Initialize receive form
     this.receiveForm = this.fb.group({
-      warehouseId: ['', Validators.required],
+      warehouseId: [firstWhId, Validators.required],
       items: this.fb.array(
         ib.items.map((item: any) =>
           this.fb.group({
@@ -670,7 +681,7 @@ export class InboundComponent implements OnInit {
 
     // Initialize putaway form
     this.putawayForm = this.fb.group({
-      warehouseId: ['', Validators.required],
+      warehouseId: [firstWhId, Validators.required],
       putawayInstructions: this.fb.array(
         ib.items.map((item: any) =>
           this.fb.group({
@@ -680,6 +691,10 @@ export class InboundComponent implements OnInit {
         )
       ),
     });
+
+    if (firstWhId) {
+      this.onPutawayWhChange();
+    }
   }
 
   // Getters for form arrays
