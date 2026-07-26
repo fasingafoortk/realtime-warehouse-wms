@@ -51,7 +51,7 @@ export class AuthService {
   }
 
   public refreshToken(): Observable<{ accessToken: string; refreshToken: string }> {
-    const refreshToken = localStorage.getItem('rf_token');
+    const refreshToken = getCookie('rf_token');
     if (!refreshToken) {
       this.clearSession();
       return throwError(() => new Error('No refresh token available.'));
@@ -60,7 +60,7 @@ export class AuthService {
     return this.http.post<{ accessToken: string; refreshToken: string }>(`${this.apiUrl}/refresh`, { refreshToken }).pipe(
       tap((res) => {
         this.accessToken.set(res.accessToken);
-        localStorage.setItem('rf_token', res.refreshToken);
+        setCookie('rf_token', res.refreshToken, 7);
       }),
       catchError((err) => {
         this.clearSession();
@@ -74,7 +74,7 @@ export class AuthService {
     if (userId) {
       this.http.post(`${this.apiUrl}/logout`, {}).subscribe({
         next: () => this.clearSession(),
-        error: () => this.clearSession() // Fallback to clear local state anyway
+        error: () => this.clearSession()
       });
     } else {
       this.clearSession();
@@ -84,26 +84,25 @@ export class AuthService {
   private setSession(auth: IAuthResponse): void {
     this.currentUser.set(auth.user);
     this.accessToken.set(auth.accessToken);
-    localStorage.setItem('user', JSON.stringify(auth.user));
-    localStorage.setItem('rf_token', auth.refreshToken);
+    setCookie('user', JSON.stringify(auth.user), 7);
+    setCookie('rf_token', auth.refreshToken, 7);
   }
 
   private clearSession(): void {
     this.currentUser.set(null);
     this.accessToken.set(null);
-    localStorage.removeItem('user');
-    localStorage.removeItem('rf_token');
+    eraseCookie('user');
+    eraseCookie('rf_token');
   }
 
   private loadSession(): void {
-    const userStr = localStorage.getItem('user');
-    const rfToken = localStorage.getItem('rf_token');
+    const userStr = getCookie('user');
+    const rfToken = getCookie('rf_token');
 
     if (userStr && rfToken) {
       try {
         const user = JSON.parse(userStr);
         this.currentUser.set(user);
-        // Refresh token automatically on load to get fresh access token
         this.refreshToken().subscribe({
           error: () => this.clearSession()
         });
@@ -112,5 +111,32 @@ export class AuthService {
       }
     }
   }
+}
+
+// Cookie Helpers
+export const getCookie = (name: string): string | null => {
+  const nameEQ = name + "=";
+  const ca = document.cookie.split(';');
+  for (let i = 0; i < ca.length; i++) {
+    let c = ca[i];
+    while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+    if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+  }
+  return null;
+};
+
+export const setCookie = (name: string, value: string, days?: number): void => {
+  let expires = "";
+  if (days) {
+    const date = new Date();
+    date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+    expires = "; expires=" + date.toUTCString();
+  }
+  const secure = window.location.protocol === 'https:' ? '; Secure' : '';
+  document.cookie = name + "=" + (value || "") + expires + "; path=/; SameSite=Lax" + secure;
+};
+
+export const eraseCookie = (name: string): void => {
+  document.cookie = name + '=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
 }
 export default AuthService;
